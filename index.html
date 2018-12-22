@@ -82,7 +82,7 @@
 		if (limit > result.length) limit = result.length;
 		for (var i = 0; i < limit; i++) {
 			tablestr += "<tr>"
-			tablestr += "<td>" + result[i].name + "</td>";
+			tablestr += "<td>" + result[i].name.replace(keyword, "<span style=\"background-color:yellow\">" + keyword + "</span>") + "</td>";
 			tablestr += "<td>" + result[i].culture + "</td>";
 			tablestr += "<td>" + result[i].chinese + "</td>";
 			tablestr += "</tr>";

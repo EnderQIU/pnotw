@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Place Names of The World</title>
+</head>
+<body>
+<h1>Place Names of The World</h1>
+<label>Keyword: <input type="text" id="search" name="search" disabled="disabled" size="32" placeholder="Please wait for data loading..."></label>
+<br>
+<label>Limit: <input type="text" id="limit" name="limit" size="8" value="20"></label>
+<table border="1">
+	<caption id="record">Displaying 0 of 0 result.</caption>
+	<thead>
+		<th>Name</th>
+		<th>Culture</th>
+		<th>Chinese</th>
+	</thead>
+	<tbody id="result">
+		
+	</tbody>
+</table>
+<script type="text/javascript" src="fuse.min.js"></script>
+<script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+	var dictionary = null;
+	var searching = false;
+
+	function debounce(func, wait, immediate) {
+  		var timeout;
+
+  		return function executedFunction() {
+    		var context = this;
+    		var args = arguments;
+	    
+    		var later = function() {
+      			timeout = null;
+      			if (!immediate) func.apply(context, args);
+    		};
+
+    		var callNow = immediate && !timeout;
+	
+    		clearTimeout(timeout);
+
+    		timeout = setTimeout(later, wait);
+	
+    		if (callNow) func.apply(context, args);
+  		};
+	};
+
+	$.getJSON( "data.json", function( data ) {
+		dictionary = data;
+		$("#search").attr("disabled", false);
+		$("#search").attr("placeholder", "Ready>");
+		$("#search").on("input", debounce(function() {
+				search($("#search").val());
+			}, 1000)
+		);
+		$("#limit").on("input", debounce(function() {
+				search($("#search").val());
+			}, 1000)
+		);
+	});
+
+	function search(keyword) {
+		if (searching) return;
+		searching = true;
+
+		var options = {
+  			keys: ['name'],
+		};
+		var fuse = new Fuse(dictionary, options);
+		var result = fuse.search(keyword);
+
+		if (result.length == 0){
+			$("#result").html("");
+			$("#record").html("Displaying 0 of 0 result.");
+		}
+
+		var tablestr = ""
+		var limit  = parseInt($("#limit").val());
+		if (isNaN(limit)) limit = 20;
+		if (limit > result.length) limit = result.length;
+		for (var i = 0; i < limit; i++) {
+			tablestr += "<tr>"
+			tablestr += "<td>" + result[i].name + "</td>";
+			tablestr += "<td>" + result[i].culture + "</td>";
+			tablestr += "<td>" + result[i].chinese + "</td>";
+			tablestr += "</tr>";
+		}
+		$("#result").html(tablestr);
+
+		$("#record").html("Displaying " + limit + " of " + result.length + " results.")
+	    searching = false;
+	}
+</script>
+</body>
+</html>
